@@ -1,4 +1,7 @@
 node_modules/
 data-server.config.json
 *.js
-data/
+
+# Data Folder
+data/*
+!data/.gitkeep
