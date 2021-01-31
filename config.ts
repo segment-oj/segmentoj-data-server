@@ -3,10 +3,14 @@ import { use_default_config } from './utilities';
 
 export interface Config {
     port: number,
+    testdata_path: string,
 };
 
 export function fetch_config(): Config {
-    const default_config: Config = { port: 3000 };
+    const default_config: Config = {
+        port: 3000,
+        testdata_path: './data',
+    };
 
     const config_path = process.env.cfg || './data-server.config.json';
 
