@@ -19,4 +19,4 @@ export function fetch_config(): Config {
     let config = JSON.parse(content.toString());
 
     return use_default_config(config, default_config);
-}
+};
