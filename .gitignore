@@ -5,3 +5,6 @@ data-server.config.json
 # Data Folder
 data/*
 !data/.gitkeep
+
+# Editors
+.vscode/
