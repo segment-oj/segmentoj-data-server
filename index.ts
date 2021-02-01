@@ -1,7 +1,8 @@
-import { Config, fetch_config } from './config';
+import { fetch_config } from './config';
 import serveIndex from 'serve-index';
 import express from 'express';
 import { find_data } from './list-data';
+import { calc_size } from './utilities';
 
 const config = fetch_config();
 
@@ -13,8 +14,12 @@ app.get('/api/data/:id', (req, res) => {
         res.status(400).end();
         return;
     }
-    
-    res.type('application/json').send(JSON.stringify({ res: find_data(config.testdata_path, id) })).end();
+
+    res.json({ res: find_data(config.testdata_path, id) }).end();
+});
+
+app.get('/api/size', async (req, res) => {
+    res.json({ res: await calc_size(config.testdata_path) }).end();
 });
 
 app.use(express.static(config.testdata_path), serveIndex(config.testdata_path, { icons: true }));
