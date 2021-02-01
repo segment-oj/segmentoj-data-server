@@ -1,6 +1,6 @@
 import fs = require('fs');
 import path = require('path');
-import diskusage = require('diskusage');
+import diskspace = require('check-disk-space');
 
 export function use_default_config(a, d) {
     for (let i in d) {
@@ -20,10 +20,10 @@ export async function calc_size(target: string) {
     return Math.ceil(size / (1024 * 1024));
 };
 
-export async function get_disk_capacity(path: string) {
+export async function get_disk_capacity(target: string) {
     try {
-        const { available } = await diskusage.check(path);
-        return Math.ceil(available / (1024 * 1024)) - 5000;
+        const { free } = await diskspace(path.resolve(target));
+        return Math.floor(free / (1024 * 1024));
     } catch (err) {
         console.error(err);
         return 0;
