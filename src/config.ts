@@ -4,12 +4,14 @@ import { use_default_config } from './utilities';
 export interface Config {
     port: number,
     testdata_path: string,
+    leader_url: string,
 };
 
 export function fetch_config(): Config {
     const default_config: Config = {
         port: 3000,
         testdata_path: './data',
+        leader_url: 'http://localhost:4000',
     };
 
     const config_path = process.env.cfg || './data-server.config.json';
