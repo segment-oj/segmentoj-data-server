@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 
-let database_content: Array<string> = null;
+let database_content: Map<string, string> = null;
 let database_source: string = '';
 
 export function set_database_path(p: string) {
@@ -11,7 +11,7 @@ async function read_database() {
     try {
         database_content = JSON.parse((await fs.readFile(database_source)).toString());
     } catch (err) {
-        database_content = new Array();
+        database_content = new Map();
         await write_database();
     }
 }
