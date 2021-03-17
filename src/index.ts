@@ -4,22 +4,28 @@ import express from 'express';
 import { find_data } from './list-data';
 import { calc_size, get_disk_capacity } from './utilities';
 import axios from 'axios';
-import fs = require('fs');
+import { promises as fs } from "fs";
+import { set_database_path, write_datetime, read_datetime } from './datetime'
 
 const config = fetch_config();
+set_database_path(config.database_path);
 
 const app = express();
 
 app.use(express.json());
 
-app.get('/api/data/:id', (req, res) => {
+app.get('/api/data/:id', async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
         res.status(400).end();
         return;
     }
 
-    res.json({ res: find_data(config.testdata_path, id) }).end();
+    if (find_data(config.testdata_path, id)) {
+        res.json({ exsit: true, time: await read_datetime(id) }).end();
+    } else {
+        res.json({exsit: false}).end();
+    }
 });
 
 app.get('/api/size', async (req, res) => {
@@ -36,13 +42,17 @@ app.get('/api/alive', (req, res) => {
 
 app.post('/api/data', (req, res) => {
     const data = req.body;
-    const {pid, testdata_url, callback_uid} = data;
+    const { pid, testdata_url, callback_uid, time } = data;
+    const last_change_time = new Date(time);
     axios.get(testdata_url).then(async res => {
         if (res.status < 200 || res.status >= 300) {
             throw new Error('status code is not OK.');
         }
-        fs.writeFileSync(`${config.testdata_path}/${pid}.zip`, res.data.toString());
-        await axios.get(`${config.leader_url}/api/data-ready/${callback_uid}`);
+        await fs.writeFile(`${config.testdata_path}/${pid}.zip`, res.data.toString());
+        await Promise.all([
+            write_datetime(pid, last_change_time),
+            axios.get(`${config.leader_url}/api/data-ready/${callback_uid}`),
+        ]);
     }).catch(err => {
         console.error(`Failed to get ${testdata_url}: ${err}`);
     });
