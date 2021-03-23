@@ -14,6 +14,20 @@ const app = express();
 
 app.use(express.json());
 
+async function init(retry_left) {
+    if (retry_left <= 0) {
+        throw Error('Cannot connect');
+    }
+    try {
+        await axios.post(`${config.leader_url}/api/data-server`, {
+            port: config.port
+        });
+    } catch(err) {
+        console.error(`Failed to connect the Judge Leader: ${err} [retry left ${retry_left - 1}]`);
+        await init(retry_left - 1);
+    }
+}
+
 app.get('/api/data/:id', async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
@@ -63,4 +77,8 @@ app.use(express.static(config.testdata_path), serveIndex(config.testdata_path, {
 
 app.listen(config.port, () => {
     console.log(`Serving on port ${config.port}.`);
+});
+
+init(5).catch((err) => {
+    console.error(err);
 });
