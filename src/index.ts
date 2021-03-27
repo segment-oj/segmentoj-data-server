@@ -22,7 +22,7 @@ async function init(retry_left) {
         await axios.post(`${config.leader_url}/api/data-server`, {
             port: config.port
         });
-    } catch(err) {
+    } catch (err) {
         console.error(`Failed to connect the Judge Leader: ${err} [retry left ${retry_left - 1}]`);
         await init(retry_left - 1);
     }
@@ -36,9 +36,9 @@ app.get('/api/data/:id', async (req, res) => {
     }
 
     if (find_data(config.testdata_path, id)) {
-        res.json({ exsit: true, time: await read_datetime(id) }).end();
+        res.json({ exist: true, time: await read_datetime(id) }).end();
     } else {
-        res.json({exsit: false}).end();
+        res.json({ exist: false }).end();
     }
 });
 
